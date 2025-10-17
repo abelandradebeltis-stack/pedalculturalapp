@@ -16,6 +16,7 @@ const config: Config = {
         'uniforme-escolar': '#597B99',
         'patativa': '#4a4a4a',
         'rosa-carinho': '#EBCED0',
+        'whitesmoke-20': '#F5F5F533',
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

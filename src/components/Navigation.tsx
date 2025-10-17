@@ -1,8 +1,9 @@
-
 'use client';
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const navLinks = [
   { href: '#project', label: 'O Projeto' },
@@ -10,27 +11,49 @@ const navLinks = [
   { href: '#agenda', label: 'Agenda' },
   { href: '#cultural-matter', label: 'Acervo' },
   { href: '#groups-and-stores', label: 'Apoiadores' },
+  { href: '/dashboard', label: 'Painel' },
 ];
 
 const NavLink = ({ href, label, onClick }: { href: string; label: string; onClick: () => void; }) => {
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    e.preventDefault();
-    const targetElement = document.querySelector(href);
-    if (targetElement) {
-      targetElement.scrollIntoView({ behavior: 'smooth' });
-    }
-    onClick();
-  };
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
+  const isAnchorLink = href.startsWith('#');
 
-  return (
-    <a
-      href={href}
-      onClick={handleClick}
-      className="block py-2 px-3 text-cinza-urbano rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-rosa-carinho md:p-0 transition-colors duration-300"
-    >
-      {label}
-    </a>
-  );
+  // For internal pages like /dashboard
+  if (!isAnchorLink) {
+    return (
+      <Link href={href} onClick={onClick} className="block py-2 px-3 text-white rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-jardim-noturno md:p-0 transition-colors duration-300">
+        {label}
+      </Link>
+    );
+  }
+
+  // For anchor links like #project
+  if (isHomePage) {
+    // We are on the home page, use smooth scroll
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+      e.preventDefault();
+      const targetElement = document.querySelector(href);
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'smooth' });
+      }
+      onClick();
+    };
+    return (
+      <a href={href} onClick={handleClick} className="block py-2 px-3 text-white rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-jardim-noturno md:p-0 transition-colors duration-300">
+        {label}
+      </a>
+    );
+  } else {
+    // We are on a different page, so we construct the full URL
+    // and use a regular Link. Next.js will navigate to the homepage
+    // and the browser will handle the hash scroll.
+    return (
+      <Link href={`/${href}`} onClick={onClick} className="block py-2 px-3 text-white rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-jardim-noturno md:p-0 transition-colors duration-300">
+        {label}
+      </Link>
+    );
+  }
 };
 
 export const Navigation = () => {
@@ -49,7 +72,7 @@ export const Navigation = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden inline-flex items-center justify-center p-2 w-10 h-10 text-cinza-urbano rounded-lg hover:bg-jardim-noturno focus:outline-none focus:ring-2 focus:ring-gray-700"
+          className="md:hidden inline-flex items-center justify-center p-2 w-10 h-10 text-white rounded-lg hover:bg-jardim-noturno focus:outline-none focus:ring-2 focus:ring-gray-700"
           aria-controls="navbar-default"
           aria-expanded={isOpen}
         >
