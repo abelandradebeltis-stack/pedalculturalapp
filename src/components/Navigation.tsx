@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 const navLinks = [
   { href: '#project', label: 'O Projeto' },
   { href: '#gallery', label: 'Eventos' },
+  { href: '#map', label: 'Mapa' },
   { href: '#agenda', label: 'Agenda' },
   { href: '#cultural-matter', label: 'Acervo' },
   { href: '#groups-and-stores', label: 'Apoiadores' },

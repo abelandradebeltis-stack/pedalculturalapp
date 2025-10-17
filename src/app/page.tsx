@@ -5,6 +5,11 @@ import { Agenda } from "../components/Agenda";
 import { CulturalMatter } from "../components/CulturalMatter";
 import { GroupsAndStores } from "../components/GroupsAndStores";
 import { Gallery } from "../components/Gallery";
+import dynamic from 'next/dynamic';
+
+const Map = dynamic(() => import('../components/Map'), {
+  ssr: false, // This will only render the map on the client side
+});
 
 export default function Home() {
   return (
@@ -20,6 +25,12 @@ export default function Home() {
       <section id="gallery" className="py-16 sm:py-24">
         <div className="container mx-auto px-4">
           <Gallery />
+        </div>
+      </section>
+
+      <section id="map" className="py-16 sm:py-24 bg-gray-100">
+        <div className="container mx-auto px-4">
+          <Map />
         </div>
       </section>
 
