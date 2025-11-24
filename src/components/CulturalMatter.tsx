@@ -1,7 +1,9 @@
-
 'use client';
 
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { db } from '@/firebase/config';
+import { collection, addDoc, onSnapshot, query, where, serverTimestamp, orderBy } from 'firebase/firestore';
 
 const questions = [
     "Além de ser um meio de transporte, a bicicleta assume outros significados na sua vida? Você se identifica com a ideia de fazer parte de uma 'tribo urbana' ou de um movimento cultural específico por ser ciclista?",
@@ -16,6 +18,134 @@ const questions = [
     "A sensação de segurança para pedalar é a mesma para todos? Como fatores como gênero, idade ou etnia influenciam na experiência e na percepção de vulnerabilidade no espaço viário?"
 ];
 
+const answerOptions = ["Concordo", "Não concordo", "Nem concordo nem discordo"];
+
+interface ApprovedComment {
+    id: string;
+    comment: string;
+}
+
+const QuestionCard = ({ question }: { question: string }) => {
+    const [selectedOption, setSelectedOption] = useState<string | null>(null);
+    const [customComment, setCustomComment] = useState('');
+    const [approvedComments, setApprovedComments] = useState<ApprovedComment[]>([]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+
+    useEffect(() => {
+        const answersCollection = collection(db, 'respostas_culturais');
+        const q = query(
+            answersCollection,
+            where('question', '==', question),
+            where('status', '==', 'approved'),
+            orderBy('timestamp', 'desc')
+        );
+
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const commentsData: ApprovedComment[] = [];
+            querySnapshot.forEach((doc) => {
+                if (doc.data().comment) {
+                    commentsData.push({ id: doc.id, comment: doc.data().comment });
+                }
+            });
+            setApprovedComments(commentsData);
+        });
+
+        return () => unsubscribe();
+    }, [question]);
+
+    // Lógica de envio corrigida
+    const handleSendResponse = async () => {
+        if (!selectedOption || isSubmitting) return;
+
+        setIsSubmitting(true);
+        try {
+            await addDoc(collection(db, 'respostas_culturais'), {
+                question: question,
+                option: selectedOption, // Garante que a opção seja incluída
+                comment: customComment,
+                status: customComment.trim() !== '' ? 'pending' : 'approved',
+                timestamp: serverTimestamp()
+            });
+            
+            setSelectedOption(null);
+            setCustomComment('');
+            setSubmitted(true);
+            setTimeout(() => setSubmitted(false), 5000);
+        } catch (error) {
+            console.error("Erro ao adicionar resposta: ", error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    return (
+        <motion.div 
+            className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+        >
+            <p className="text-gray-700 dark:text-gray-200 italic mb-4">{question}</p>
+            
+            {submitted ? (
+                <div className="text-center p-4 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg">
+                    Obrigado pela sua contribuição!
+                </div>
+            ) : (
+                // O elemento <form> foi removido para um controle mais explícito
+                <div>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {answerOptions.map((option) => (
+                            <button
+                                key={option}
+                                type="button"
+                                onClick={() => setSelectedOption(option)}
+                                className={`px-4 py-2 text-sm rounded-full transition-colors ${selectedOption === option ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'}`}>
+                                {option}
+                            </button>
+                        ))}
+                    </div>
+
+                    {selectedOption && (
+                        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} transition={{ duration: 0.3 }}>
+                            <textarea
+                                value={customComment}
+                                onChange={(e) => setCustomComment(e.target.value)}
+                                placeholder="Deseja adicionar um comentário? (opcional)"
+                                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-green-500 focus:outline-none mt-2"
+                                rows={3}
+                                disabled={isSubmitting}
+                            />
+                             <button
+                                type="button" // Alterado de 'submit' para 'button'
+                                onClick={handleSendResponse} // O envio agora é tratado aqui
+                                className="w-full mt-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-gray-400"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Enviando...' : 'Enviar Resposta'}
+                            </button>
+                        </motion.div>
+                    )}
+                </div>
+            )}
+
+            {approvedComments.length > 0 && (
+                <div className="mt-6 border-t border-gray-200 dark:border-gray-600 pt-4">
+                    <h4 className="font-semibold text-sm text-gray-600 dark:text-gray-300 mb-3">Comentários da Comunidade (Aprovados):</h4>
+                    <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
+                        {approvedComments.map((item) => (
+                            <div key={item.id} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-md text-gray-600 dark:text-gray-400 text-sm">
+                                &quot;{item.comment}&quot;
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+        </motion.div>
+    );
+};
+
 export const CulturalMatter = () => {
     return (
         <motion.div
@@ -24,17 +154,12 @@ export const CulturalMatter = () => {
             transition={{ duration: 0.5 }}
         >
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Matéria Cultural: Reflexões sobre a Bicicleta</h3>
-            <div className="space-y-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-8">
+                Este é um espaço para diálogo. Escolha uma das opções e, se desejar, compartilhe um comentário. Suas respostas anônimas ajudam a construir um panorama sobre a cultura da bicicleta em nossa cidade.
+            </p>
+            <div className="space-y-8">
                 {questions.map((question, index) => (
-                    <motion.div 
-                        key={index} 
-                        className="p-4 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: index * 0.1 }}
-                    >
-                        <p className="text-gray-700 dark:text-gray-200 italic">{question}</p>
-                    </motion.div>
+                    <QuestionCard key={index} question={question} />
                 ))}
             </div>
         </motion.div>
