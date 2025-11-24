@@ -28,23 +28,23 @@
     "id": "passeio-ciclstico---pedal-cultural",
     "title": "Passeio Ciclístico - Pedal Cultural",
     "description": "Passeio Ciclístico - Pedal Cultural",
-    "fullDescription": "Passeio Ciclístico - Pedal Cultural - 12 de outubro de 2025, com início às 8h30 na Praça do Ciclista (cruzamento da Av. Paulista com a Rua da Consolação).\n",
-    "featuredImage": "/images/12OUT1",
+    "fullDescription": "Passeio Ciclístico - Pedal Cultural - 12 de outubro de 2025, com início às 8h30 na Praça do Ciclista (cruzamento da Av. Paulista com a Rua da Consolação).\\n",
+    "featuredImage": "/images/12OUT1.jpg",
     "images": [
       {
-        "src": "/images/12OUT1",
+        "src": "/images/12OUT1.jpg",
         "alt": ""
       },
       {
-        "src": "/images/12OUT2",
+        "src": "/images/12OUT2.jpg",
         "alt": ""
       },
       {
-        "src": "/images/12OUT3",
+        "src": "/images/12OUT3.jpg",
         "alt": ""
       },
       {
-        "src": "/images/12OUT4",
+        "src": "/images/12OUT4.jpg",
         "alt": ""
       }
     ]
