@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -15,87 +15,96 @@ const navLinks = [
   { href: '/dashboard', label: 'Painel' },
 ];
 
+// Este componente será usado para os links da navegação
 const NavLink = ({ href, label, onClick }: { href: string; label: string; onClick: () => void; }) => {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
   const isAnchorLink = href.startsWith('#');
 
-  // For internal pages like /dashboard
+  // Estilo base para os links
+  const className = "block py-2 px-3 text-white rounded hover:bg-jardim-noturno lg:hover:bg-transparent lg:border-0 lg:hover:text-jardim-noturno lg:p-0 transition-colors duration-300";
+
+  // Se não for um link âncora, usa o Link do Next.js diretamente
   if (!isAnchorLink) {
-    return (
-      <Link href={href} onClick={onClick} className="block py-2 px-3 text-white rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-jardim-noturno md:p-0 transition-colors duration-300">
-        {label}
-      </Link>
-    );
+    return <Link href={href} onClick={onClick} className={className}>{label}</Link>;
   }
 
-  // For anchor links like #project
+  // Se for um link âncora na página inicial, usa scroll suave
   if (isHomePage) {
-    // We are on the home page, use smooth scroll
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
       e.preventDefault();
-      const targetElement = document.querySelector(href);
-      if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'smooth' });
-      }
-      onClick();
+      document.querySelector(href)?.scrollIntoView({ behavior: 'smooth' });
+      onClick(); // Fecha o menu mobile se estiver aberto
     };
-    return (
-      <a href={href} onClick={handleClick} className="block py-2 px-3 text-white rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-jardim-noturno md:p-0 transition-colors duration-300">
-        {label}
-      </a>
-    );
+    return <a href={href} onClick={handleClick} className={className}>{label}</a>;
   } else {
-    // We are on a different page, so we construct the full URL
-    // and use a regular Link. Next.js will navigate to the homepage
-    // and the browser will handle the hash scroll.
-    return (
-      <Link href={`/${href}`} onClick={onClick} className="block py-2 px-3 text-white rounded hover:bg-jardim-noturno md:hover:bg-transparent md:border-0 md:hover:text-jardim-noturno md:p-0 transition-colors duration-300">
-        {label}
-      </Link>
-    );
+    // Se for um link âncora em outra página, navega para a home e depois scrolla
+    return <Link href={`/${href}`} onClick={onClick} className={className}>{label}</Link>;
   }
 };
+
+
 
 export const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Trava o scroll da página quando o menu mobile está aberto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
+
   return (
     <nav>
-      <div className="flex items-center">
-         {/* Desktop Menu */}
-        <div className="hidden md:flex md:items-center md:space-x-8">
-          {navLinks.map(link => (
-            <NavLink key={link.href} href={link.href} label={link.label} onClick={() => setIsOpen(false)} />
-          ))}
-        </div>
+      {/* Menu para Desktop */}
+      <div className="hidden lg:flex lg:items-center lg:space-x-6">
+        {navLinks.map(link => (
+          <NavLink key={link.href} href={link.href} label={link.label} onClick={() => setIsOpen(false)} />
+        ))}
+      </div>
 
-        {/* Mobile Menu Button */}
+      {/* Botão do Menu Mobile (Hamburger) */}
+      <div className="lg:hidden">
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden inline-flex items-center justify-center p-2 w-10 h-10 text-white rounded-lg hover:bg-jardim-noturno focus:outline-none focus:ring-2 focus:ring-gray-700"
-          aria-controls="navbar-default"
-          aria-expanded={isOpen}
+          onClick={() => setIsOpen(true)}
+          className="inline-flex items-center justify-center p-2 w-10 h-10 text-white rounded-lg hover:bg-jardim-noturno focus:outline-none focus:ring-2 focus:ring-gray-700"
+          aria-label="Abrir menu principal"
         >
-          <span className="sr-only">Open main menu</span>
           <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
             <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15"/>
           </svg>
         </button>
       </div>
       
-      {/* Mobile Menu */}
+      {/* Menu Mobile (Overlay em tela cheia) */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="absolute top-16 left-0 right-0 md:hidden bg-cinza-asfalto shadow-lg z-50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-cinza-asfalto/95 backdrop-blur-sm z-50 flex flex-col items-center justify-center"
           >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+            <button
+              onClick={() => setIsOpen(false)}
+              className="absolute top-5 right-5 p-2 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              aria-label="Fechar menu principal"
+            >
+              <svg className="w-6 h-6" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            
+            <div className="flex flex-col items-center space-y-8">
               {navLinks.map(link => (
-                <NavLink key={link.href} href={link.href} label={link.label} onClick={() => setIsOpen(false)} />
+                 <NavLink key={link.href} href={link.href} label={link.label} onClick={() => setIsOpen(false)} />
               ))}
             </div>
           </motion.div>

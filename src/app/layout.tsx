@@ -5,12 +5,11 @@ import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Nova Vida Sustentável - O seu guia para um futuro mais verde",
+  title: "Pedal Cultural - O seu guia para um futuro mais verde",
   description: "Pergunte, aprenda e aja para um futuro mais sustentável com o nosso assistente de IA.",
 };
 
@@ -24,13 +23,11 @@ export default function RootLayout({
       <body 
         className={`${inter.className} bg-patativa dark:bg-cinza-asfalto text-cinza-urbano transition-colors duration-300`}>
         <Providers>
-          <AuthProvider>
             <Header />
             <main>
               {children}
             </main>
             <Footer />
-          </AuthProvider>
         </Providers>
       </body>
     </html>
