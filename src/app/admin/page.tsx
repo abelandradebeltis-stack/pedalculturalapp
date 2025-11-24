@@ -99,7 +99,7 @@ const AdminDashboard = () => {
             ))}
           </ul>
           {events.length === 0 && (
-              <p className="p-6 text-center text-gray-500">Nenhum evento encontrado. Clique em "Adicionar Evento" para começar.</p>
+              <p className="p-6 text-center text-gray-500">Nenhum evento encontrado. Clique em &quot;Adicionar Evento&quot; para começar.</p>
           )}
         </div>
       </div>
