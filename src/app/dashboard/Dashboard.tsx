@@ -16,6 +16,29 @@ import {
   CartesianGrid,
 } from 'recharts';
 
+// Definição do tipo para as linhas do CSV
+interface CsvData {
+  [key: string]: string;
+}
+
+// Definições de tipo para os dados do gráfico
+interface BarChartData {
+  name: string;
+  quantidade: number;
+}
+
+interface PieChartData {
+  name: string;
+  value: number;
+  [key: string]: any;
+}
+
+interface AvgChartData {
+  name: string;
+  avaliacaoMedia: number;
+}
+
+
 // Hook to check for mobile screen size
 const useIsMobile = (breakpoint = 768) => {
   const [isMobile, setIsMobile] = useState(false);
@@ -53,13 +76,11 @@ const COLUMN_MAP = {
 const PIE_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF'];
 
 const Dashboard = () => {
-  const [frequencyData, setFrequencyData] = useState([]);
-  const [ageData, setAgeData] = useState([]);
-  const [challengesData, setChallengesData] = useState([]);
-  const [activismData, setActivismData] = useState([]);
-  const [insecurityDistributionData, setInsecurityDistributionData] = useState(
-    []
-  );
+  const [frequencyData, setFrequencyData] = useState<BarChartData[]>([]);
+  const [ageData, setAgeData] = useState<BarChartData[]>([]);
+  const [challengesData, setChallengesData] = useState<AvgChartData[]>([]);
+  const [activismData, setActivismData] = useState<PieChartData[]>([]);
+  const [insecurityDistributionData, setInsecurityDistributionData] = useState<BarChartData[]>([]);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -69,12 +90,12 @@ const Dashboard = () => {
           'https://docs.google.com/spreadsheets/d/e/2PACX-1vSxodOlZc_MSKFbIVWHvGypWw5z059ART5j3uknn0j0Fs03hdt9PU6dhaXniYpr2MMjkC8DhZLdLkFD/pub?output=csv'
         );
 
-        Papa.parse(response.data, {
+        Papa.parse<CsvData>(response.data, {
           header: true,
           complete: (result) => {
             const rawData = result.data.filter((row) => row[COLUMN_MAP.age]);
             
-            const frequencyLabelMap = {
+            const frequencyLabelMap: { [key: string]: string } = {
                 'diariamente': 'Diário',
                 'algumas vezes por semana': 'Semanal',
                 'uma vez por semana': 'Semanal',
@@ -83,7 +104,7 @@ const Dashboard = () => {
                 'não uso, mas tenho interesse': 'Interessado',
                 'não uso e não tenho interesse': 'N/ Interessado',
             };
-            const frequencyCounts = rawData.reduce((acc, row) => {
+            const frequencyCounts = rawData.reduce((acc: { [key: string]: number }, row) => {
                 const freq = row[COLUMN_MAP.frequency]?.trim().toLowerCase();
                 const shortName = frequencyLabelMap[freq];
                 if (shortName) {
@@ -95,7 +116,7 @@ const Dashboard = () => {
               Object.entries(frequencyCounts).map(([name, value]) => ({ name, quantidade: value }))
             );
 
-            const ageGroups = {
+            const ageGroups: { [key: string]: number } = {
               '<20': 0, '20-29': 0, '30-39': 0, '40-49': 0, '50-59': 0, '60+': 0,
             };
             rawData.forEach((row) => {
@@ -114,7 +135,7 @@ const Dashboard = () => {
               Object.entries(ageGroups).map(([name, value]) => ({ name, quantidade: value }))
             );
 
-            const activismCounts = rawData.reduce((acc, row) => {
+            const activismCounts = rawData.reduce((acc: { [key: string]: number }, row) => {
               const res = row[COLUMN_MAP.activism]?.trim().toLowerCase();
               if (res) {
                 const key = res.charAt(0).toUpperCase() + res.slice(1);
@@ -126,11 +147,11 @@ const Dashboard = () => {
               Object.entries(activismCounts).filter(([, v]) => v > 0).map(([name, value]) => ({ name, value }))
             );
 
-            const challenges = {
+            const challenges: { [key: string]: number[] } = {
               Insegurança: [], Infra: [], Apoio: [], 'Carro': [], Topografia: [], Clima: [],
             };
             rawData.forEach((row) => {
-              const collectChallengeData = (col, key) => {
+              const collectChallengeData = (col: string, key: string) => {
                   const val = parseInt(row[col], 10);
                   if (!isNaN(val)) challenges[key].push(val);
               }
@@ -148,7 +169,7 @@ const Dashboard = () => {
               }))
             );
             
-            const insecurityCounts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            const insecurityCounts: { [key: string]: number } = { '1': 0, '2': 0, '3': 0, '4': 0, '5': 0 };
             rawData.forEach((row) => {
               const rating = row[COLUMN_MAP.challenge_insecurity];
               if (rating && insecurityCounts.hasOwnProperty(rating)) {
@@ -173,7 +194,7 @@ const Dashboard = () => {
         Análise da Cultura da Pedalada
       </h1>
       <p className="text-center text-sm sm:text-lg text-gray-600 mb-8 md:mb-12">
-        Resultados da pesquisa 'Pedal Cultural'
+        Resultados da pesquisa &apos;Pedal Cultural&apos;
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
