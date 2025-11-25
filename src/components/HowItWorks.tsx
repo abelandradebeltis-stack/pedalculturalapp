@@ -43,8 +43,8 @@ const HowItWorks = () => {
       viewport={{ once: true, amount: 0.3 }}
       transition={{ staggerChildren: 0.3 }}
     >
-      <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Como Funciona</h2>
-      <div className="container mx-auto grid md:grid-cols-3 gap-12">
+      <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Como Funciona</h2>
+      <div className="container mx-auto grid md:grid-cols-3 gap-8 md:gap-12">
         {steps.map((step, index) => (
           <motion.div 
             key={index} 

@@ -1,48 +1,47 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from 'react';
-import { collection, addDoc, deleteDoc, onSnapshot, doc } from 'firebase/firestore';
-import { db } from '@/firebase/config'; // Nossa instância do Firestore
-
-import Hero from "../components/Hero";
-import { Project } from "../components/Project";
-import { Agenda } from "../components/Agenda";
-import { CulturalMatter } from "../components/CulturalMatter";
-import { GroupsAndStores } from "../components/GroupsAndStores";
-import { Gallery } from "../components/Gallery";
+import { db } from '@/firebase/config';
+import { collection, onSnapshot, addDoc, doc, deleteDoc } from 'firebase/firestore';
+import { motion } from 'framer-motion';
+import { Agenda } from '@/components/Agenda';
+import { CulturalMatter } from '@/components/CulturalMatter';
+import Hero from '@/components/Hero';
+import HowItWorks from '@/components/HowItWorks';
+import { Project } from '@/components/Project';
+import EventGallery from '@/components/EventGallery';
+import { GroupsAndStores } from '@/components/GroupsAndStores';
 import dynamic from 'next/dynamic';
 
-const Map = dynamic(() => import('../components/Map'), {
-  ssr: false,
-});
+const Map = dynamic(() => import('@/components/Map'), { ssr: false });
 
-// Interface para o item da agenda, agora com um `id` opcional
+// Definição do tipo para cada item da agenda
 export interface AgendaItem {
-  id?: string; // O ID do documento no Firestore
-  date: string;
+  id: string;
   title: string;
+  date: string;
+  time: string;
   description: string;
   lat?: number;
   lng?: number;
 }
 
+// Componente principal da página
 export default function Home() {
   const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
 
   // Efeito para buscar e ouvir os eventos do Firestore em tempo real
   useEffect(() => {
-    const q = collection(db, 'events'); // Aponta para a coleção 'events'
+    const q = collection(db, 'events');
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       let itemsArr: AgendaItem[] = [];
       querySnapshot.forEach((doc) => {
         itemsArr.push({ ...doc.data(), id: doc.id } as AgendaItem);
       });
-      // Ordena os itens por data (opcional, mas recomendado)
       itemsArr.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
       setAgendaItems(itemsArr);
     });
 
-    // Retorna a função de limpeza para parar de ouvir quando o componente desmontar
     return () => unsubscribe();
   }, []);
 
@@ -57,10 +56,6 @@ export default function Home() {
 
   // Função para deletar um evento do Firestore
   const deleteEvent = async (id: string) => {
-    if (!id) {
-      console.error("ID do evento é inválido");
-      return;
-    }
     try {
       await deleteDoc(doc(db, 'events', id));
     } catch (error) {
@@ -69,49 +64,46 @@ export default function Home() {
   };
 
   return (
-    <>
-      <Hero />
+    <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
       
-      <section id="project" className="py-16 sm:py-24 bg-jardim-noturno">
-        <div className="container mx-auto px-4">
-          <Project />
-        </div>
+      <section id="hero">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="flex-grow flex flex-col items-center justify-center text-center p-4 md:p-8"
+        >
+          <Hero />
+        </motion.div>
       </section>
 
-      <section id="gallery" className="py-16 sm:py-24">
-        <div className="container mx-auto px-4">
-          <Gallery />
-        </div>
+      <section id="como-funciona">
+        <HowItWorks />
       </section>
 
-      <section id="map" className="py-16 sm:py-24 bg-gray-100">
-        <div className="container mx-auto px-4">
-          <Map agendaItems={agendaItems} /> 
-        </div>
+      <section id="projeto">
+        <Project />
+      </section>
+      
+      <section id="mapa">
+        <Map agendaItems={agendaItems} />
       </section>
 
-      <section id="agenda" className="py-16 sm:py-24 bg-uniforme-escolar">
-        <div className="container mx-auto px-4">
-          <Agenda 
-            agendaItems={agendaItems} 
-            onAddEvent={addEvent} 
-            onDeleteEvent={deleteEvent} 
-          />
-        </div>
+      <section id="galeria">
+        <EventGallery />
       </section>
 
-      <section id="cultural-matter" className="py-16 sm:py-24">
-        <div className="container mx-auto px-4">
-          <CulturalMatter />
-        </div>
+      <section id="grupos">
+        <GroupsAndStores />
       </section>
 
-      <section id="groups-and-stores" className="py-16 sm:py-24 bg-jardim-noturno">
-        <div className="container mx-auto px-4">
-          <GroupsAndStores />
-        </div>
+      <section id="agenda">
+        <Agenda agendaItems={agendaItems} onAddEvent={addEvent} onDeleteEvent={deleteEvent} />
       </section>
 
-    </>
+      <section id="cultura-importa">
+        <CulturalMatter />
+      </section>
+    </div>
   );
 }

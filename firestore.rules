@@ -1,18 +1,18 @@
-rules_version='2'
-
+rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      // This rule allows anyone with your database reference to view, edit,
-      // and delete all data in your database. It is useful for getting
-      // started, but it is configured to expire after 30 days because it
-      // leaves your app open to attackers. At that time, all client
-      // requests to your database will be denied.
-      //
-      // Make sure to write security rules for your app before that time, or
-      // else all client requests to your database will be denied until you
-      // update your rules.
-      allow read, write: if request.time < timestamp.date(2025, 11, 17);
+    // Os eventos podem ser lidos por qualquer pessoa
+    match /events/{eventId} {
+      allow read: if true;
+      // Os eventos só podem ser criados, atualizados ou eliminados por utilizadores autenticados
+      allow write: if request.auth != null;
+    }
+
+    // As respostas culturais podem ser lidas e criadas por qualquer pessoa
+    match /respostas_culturais/{responseId} {
+      allow read, create: if true;
+      // Apenas utilizadores autenticados podem modificá-las ou eliminá-las (por exemplo, para moderação)
+      allow update, delete: if request.auth != null;
     }
   }
 }

@@ -54,7 +54,6 @@ const QuestionCard = ({ question }: { question: string }) => {
         return () => unsubscribe();
     }, [question]);
 
-    // Lógica de envio corrigida
     const handleSendResponse = async () => {
         if (!selectedOption || isSubmitting) return;
 
@@ -62,7 +61,7 @@ const QuestionCard = ({ question }: { question: string }) => {
         try {
             await addDoc(collection(db, 'respostas_culturais'), {
                 question: question,
-                option: selectedOption, // Garante que a opção seja incluída
+                option: selectedOption,
                 comment: customComment,
                 status: customComment.trim() !== '' ? 'pending' : 'approved',
                 timestamp: serverTimestamp()
@@ -81,27 +80,27 @@ const QuestionCard = ({ question }: { question: string }) => {
 
     return (
         <motion.div 
-            className="p-6 border border-gray-200 dark:border-gray-700 rounded-lg shadow-sm bg-white dark:bg-gray-800"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.5 }}
         >
-            <p className="text-gray-700 dark:text-gray-200 italic mb-4">{question}</p>
+            <p className="text-gray-700 dark:text-gray-200 italic mb-4 text-base md:text-lg">{question}</p>
             
             {submitted ? (
                 <div className="text-center p-4 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-lg">
                     Obrigado pela sua contribuição!
                 </div>
             ) : (
-                // O elemento <form> foi removido para um controle mais explícito
                 <div>
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-3 mb-4">
                         {answerOptions.map((option) => (
                             <button
                                 key={option}
                                 type="button"
                                 onClick={() => setSelectedOption(option)}
-                                className={`px-4 py-2 text-sm rounded-full transition-colors ${selectedOption === option ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300'}`}>
+                                className={`px-4 py-2 text-sm rounded-full transition-colors ${selectedOption === option ? 'bg-green-500 text-white shadow-lg' : 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600'}`}>
                                 {option}
                             </button>
                         ))}
@@ -113,14 +112,14 @@ const QuestionCard = ({ question }: { question: string }) => {
                                 value={customComment}
                                 onChange={(e) => setCustomComment(e.target.value)}
                                 placeholder="Deseja adicionar um comentário? (opcional)"
-                                className="w-full p-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-green-500 focus:outline-none mt-2"
+                                className="w-full p-3 border rounded-md dark:bg-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-green-500 focus:outline-none mt-2"
                                 rows={3}
                                 disabled={isSubmitting}
                             />
                              <button
-                                type="button" // Alterado de 'submit' para 'button'
-                                onClick={handleSendResponse} // O envio agora é tratado aqui
-                                className="w-full mt-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 disabled:bg-gray-400"
+                                type="button"
+                                onClick={handleSendResponse}
+                                className="w-full mt-3 px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600 disabled:bg-gray-400 shadow-md hover:shadow-lg transition-all"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? 'Enviando...' : 'Enviar Resposta'}
@@ -132,10 +131,10 @@ const QuestionCard = ({ question }: { question: string }) => {
 
             {approvedComments.length > 0 && (
                 <div className="mt-6 border-t border-gray-200 dark:border-gray-600 pt-4">
-                    <h4 className="font-semibold text-sm text-gray-600 dark:text-gray-300 mb-3">Comentários da Comunidade (Aprovados):</h4>
+                    <h4 className="font-semibold text-sm text-gray-600 dark:text-gray-300 mb-3">Comentários da Comunidade:</h4>
                     <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
                         {approvedComments.map((item) => (
-                            <div key={item.id} className="p-3 bg-gray-50 dark:bg-gray-900 rounded-md text-gray-600 dark:text-gray-400 text-sm">
+                            <div key={item.id} className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-md text-gray-600 dark:text-gray-400 text-sm italic">
                                 &quot;{item.comment}&quot;
                             </div>
                         ))}
@@ -149,18 +148,24 @@ const QuestionCard = ({ question }: { question: string }) => {
 export const CulturalMatter = () => {
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="bg-white dark:bg-gray-800 py-16 px-4 sm:px-6 lg:px-8"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, amount: 0.1 }}
             transition={{ duration: 0.5 }}
         >
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Matéria Cultural: Reflexões sobre a Bicicleta</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
-                Este é um espaço para diálogo. Escolha uma das opções e, se desejar, compartilhe um comentário. Suas respostas anônimas ajudam a construir um panorama sobre a cultura da bicicleta em nossa cidade.
-            </p>
-            <div className="space-y-8">
-                {questions.map((question, index) => (
-                    <QuestionCard key={index} question={question} />
-                ))}
+            <div className="max-w-4xl mx-auto">
+                <div className="text-center mb-12">
+                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Matéria Cultural: Reflexões sobre a Bicicleta</h3>
+                    <p className="text-gray-600 dark:text-gray-400 mt-4 max-w-3xl mx-auto">
+                        Este é um espaço para diálogo. Escolha uma das opções e, se desejar, compartilhe um comentário. Suas respostas anônimas ajudam a construir um panorama sobre a cultura da bicicleta em nossa cidade.
+                    </p>
+                </div>
+                <div className="space-y-8">
+                    {questions.map((question, index) => (
+                        <QuestionCard key={index} question={question} />
+                    ))}
+                </div>
             </div>
         </motion.div>
     );

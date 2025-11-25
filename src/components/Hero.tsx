@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 const Hero = () => {
   return (
     <motion.section 
-      className="relative text-center pt-32 pb-20 px-4 bg-cover bg-center bg-no-repeat"
+      className="relative text-center pt-24 pb-16 md:pt-32 md:pb-20 px-4 bg-cover bg-center bg-no-repeat"
       style={{ backgroundImage: "url('/images/banner.jpg')" }}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -17,7 +17,7 @@ const Hero = () => {
 
       {/* Content container */}
       <div className="relative z-10">
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tighter">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tighter">
           Cultura, Comunidade e Sustentabilidade
         </h1>
         <p className="text-lg md:text-xl text-gray-200 max-w-3xl mx-auto">
