@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section admin-section">
+  <div class="admin-header">
+    <h1>Eventos</h1>
+    <a href="{{ url_for('admin_new_event') }}" class="btn-primary">Novo Evento</a>
+  </div>
+
+  <div class="admin-events-list">
+    {% for e in events %}
+    <article class="admin-event-item">
+      <div class="admin-event-main">
+        <h2>{{ e['title'] }}</h2>
+        <p class="event-meta">
+          {% if e['event_date'] %}<span>{{ e['event_date'] }}</span>{% endif %}
+          {% if e['location'] %}<span>• {{ e['location'] }}</span>{% endif %}
+        </p>
+      </div>
+      <div class="admin-event-actions">
+        <a href="{{ url_for('admin_edit_event', event_id=e['id']) }}" class="btn-outline">Editar</a>
+        <form method="post" action="{{ url_for('admin_delete_event', event_id=e['id']) }}" onsubmit="return confirm('Deseja realmente excluir este evento?');">
+          <button type="submit" class="btn-danger">Excluir</button>
+        </form>
+      </div>
+    </article>
+    {% else %}
+    <p class="empty-state">Nenhum evento cadastrado.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

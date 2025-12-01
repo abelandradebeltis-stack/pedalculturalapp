@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-banner"></div>
+</section>
+
+<section id="como-funciona" class="section cards-3">
+  <h2>Como Funciona</h2>
+  <div class="cards-grid">
+    <article class="info-card">
+      <div class="icon-circle">?</div>
+      <h3>Observe</h3>
+      <p>Durante os pedais, os participantes registram experiências de quem usa a bike para trabalho, lazer ou saúde.</p>
+    </article>
+    <article class="info-card">
+      <div class="icon-circle">📋</div>
+      <h3>Pesquise</h3>
+      <p>Os dados coletados são organizados em uma base única para análises sobre mobilidade e cultura da bicicleta.</p>
+    </article>
+    <article class="info-card">
+      <div class="icon-circle">🚲</div>
+      <h3>Transforme</h3>
+      <p>Os resultados geram reflexões, ações educativas e propostas de melhoria para a cidade.</p>
+    </article>
+  </div>
+</section>
+
+<section id="projeto" class="section split">
+  <div class="split-text">
+    <h2>Sobre o Projeto</h2>
+    <p>O Pedal Cultural é uma iniciativa de pesquisa de campo que une sala de aula, cidade e bicicleta. Em cada pedalada, estudantes e o professor Sergio Brejão investigam como a bike transforma trajetos, rotinas e percepções sobre o espaço urbano.</p>
+    <p>Os eventos são registrados, analisados e disponibilizados neste painel público para inspirar novas rotas e políticas de mobilidade mais humanas.</p>
+  </div>
+  <div class="split-highlight">
+    <div class="stat-pill">
+      <span class="stat-label">Participantes cadastrados</span>
+      <span id="stat-participantes" class="stat-value">–</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-label">Locais mapeados</span>
+      <span id="stat-locais" class="stat-value">–</span>
+    </div>
+  </div>
+</section>
+
+<section id="mapa" class="section map-section">
+  <h2>Mapa de Eventos</h2>
+  <p class="section-subtitle">Principais regiões visitadas pelos pedais culturais.</p>
+  <div id="map"></div>
+</section>
+
+<section id="eventos" class="section">
+  <h2>Nossos Eventos</h2>
+  <p class="section-subtitle">Clique em um evento para ver fotos e detalhes da pesquisa em campo.</p>
+  <div class="events-grid">
+    {% for e in events %}
+    <a href="{{ url_for('event_detail', event_id=e.id) }}" class="event-card">
+      {% if e.cover_image %}
+      {% set image_path = url_for('static', filename='uploads/' + e.cover_image) %}
+      <div class="event-cover" data-bg-image="{{ image_path }}"></div>
+      {% else %}
+      <div class="event-cover event-cover-placeholder"></div>
+      {% endif %}
+      <div class="event-body">
+        <h3>{{ e.title }}</h3>
+        {% if e.location or e.event_date %}
+        <p class="event-meta">
+          {% if e.event_date %}<span>{{ e.event_date }}</span>{% endif %}
+          {% if e.location %}<span>• {{ e.location }}</span>{% endif %}
+        </p>
+        {% endif %}
+        {% if e.description %}
+        <p class="event-description">{{ e.description[:100] }}{% if e.description|length > 100 %}...{% endif %}</p>
+        {% endif %}
+      </div>
+    </a>
+    {% else %}
+    <p class="empty-state">Nenhum evento cadastrado ainda. Aguarde os próximos pedais!</p>
+    {% endfor %}
+  </div>
+</section>
+
+<section id="dashboard" class="section dashboard-section">
+  <h2>Análise da Cultura da Pedalada</h2>
+  <p class="section-subtitle">Resultados da pesquisa "Pedal Cultural".</p>
+
+  <div class="charts-grid" id="charts-grid-container">
+    <!-- Os gráficos serão inseridos dinamicamente aqui -->
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section auth-section">
+  <div class="auth-card">
+    <h1>Área Administrativa</h1>
+    <form method="post" class="auth-form">
+      <label>
+        Usuário
+        <input type="text" name="username" required />
+      </label>
+      <label>
+        Senha
+        <input type="password" name="password" required />
+      </label>
+      {% if error %}
+      <p class="form-error">{{ error }}</p>
+      {% endif %}
+      <button type="submit" class="btn-primary">Entrar</button>
+    </form>
+  </div>
+</section>
+{% endblock %}

@@ -1,53 +1,53 @@
-# To learn more about how to use Nix to configure your environment
-# see: https://developers.google.com/idx/guides/customize-idx-env
+# This is the configuration for your development environment in Firebase Studio.
+# It uses the Nix package manager to ensure a reproducible and consistent setup.
+
 { pkgs, ... }: {
-  # Which nixpkgs channel to use.
-  channel = "stable-24.05"; # or "unstable"
-  # Use https://search.nixos.org/packages to find packages
+
+  # Specifies the Nixpkgs channel to use for packages.
+  # "stable-24.05" provides a stable set of packages from May 2024.
+  channel = "stable-24.05";
+
+  # A list of packages to install from the specified channel.
   packages = [
-    # pkgs.go
-    # pkgs.python311
-    # pkgs.python311Packages.pip
-    # pkgs.nodejs_20
-    # pkgs.nodePackages.nodemon
+    # This creates a unified Python environment with all necessary packages.
+    # Using `withPackages` is the idiomatic Nix way to ensure that the Python
+    # interpreter and its packages are correctly linked.
+    (pkgs.python3.withPackages (ps: [
+      ps.pip          # Installs the pip package manager.
+      ps.flask        # Installs the Flask web framework.
+      ps.python-dotenv # Installs python-dotenv for managing .env files.
+      ps.requests     # Installs the requests library for HTTP requests.
+    ]))
   ];
-  # Sets environment variables in the workspace
-  env = {};
+
+  # A set of environment variables to define within the workspace.
+  env = {
+    # Tells Flask where to find the main application file.
+    FLASK_APP = "app.py";
+  };
+
+  # Firebase Studio specific configurations.
   idx = {
-    # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
+    # A list of VS Code extensions to install from the Open VSX Registry.
     extensions = [
-      # "vscodevim.vim"
-      "google.gemini-cli-vscode-ide-companion"
+      "ms-python.python"  # Provides Python language support.
     ];
-    # Enable previews
+
+    # Workspace lifecycle hooks are not needed as Nix manages the dependencies.
+    workspace = {};
+
+    # Configures a web preview for your application.
     previews = {
       enable = true;
       previews = {
-        # web = {
-        #   # Example: run "npm run dev" with PORT set to IDX's defined port for previews,
-        #   # and show it in IDX's web preview panel
-        #   command = ["npm" "run" "dev"];
-        #   manager = "web";
-        #   env = {
-        #     # Environment variables to set for your server
-        #     PORT = "$PORT";
-        #   };
-        # };
-      };
-    };
-    # Workspace lifecycle hooks
-    workspace = {
-      # Runs when a workspace is first created
-      onCreate = {
-        # Example: install JS dependencies from NPM
-        # npm-install = "npm install";
-        # Open editors for the following files by default, if they exist:
-        default.openFiles = [ ".idx/dev.nix" "README.md" ];
-      };
-      # Runs when the workspace is (re)started
-      onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
+        # Defines a preview named "web".
+        web = {
+          # The command to run to start the web server.
+          # The $PORT variable is dynamically assigned by Firebase Studio.
+          command = [ "flask" "run" "--port" "$PORT" "--host" "0.0.0.0" ];
+          # Specifies that this is a web server preview.
+          manager = "web";
+        };
       };
     };
   };

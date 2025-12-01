@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pedal Cultural - Grupo Ânima Educação</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <!-- Leaflet.js CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-title">Pedal Cultural</span>
+      <span class="brand-sub">Ânima Educação</span>
+    </div>
+    <nav class="nav-links">
+      <a href="{{ url_for('index') }}#como-funciona">Como Funciona</a>
+      <a href="{{ url_for('index') }}#projeto">O Projeto</a>
+      <a href="{{ url_for('index') }}#mapa">Mapa</a>
+      <a href="{{ url_for('index') }}#eventos">Galeria</a>
+      <a href="{{ url_for('index') }}#dashboard">Dados da Pesquisa</a>
+      {% if session.get('user_id') %}
+      <a href="{{ url_for('admin_events') }}">Admin</a>
+      <a href="{{ url_for('logout') }}">Sair</a>
+      {% else %}
+      <a href="{{ url_for('login') }}">Admin</a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">
+  <div class="footer-inner">
+    <p>&copy; Ânima Educação 2025 - Pedal Cultural - Criado e desenvolvido por Abelardo Andrade 821219021 - Todos os direitos reservados Copyright - Professor Sergio Brejão</p>
+  </div>
+</footer>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<!-- Leaflet.js -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<!-- Nosso script do dashboard -->
+<script src="{{ url_for('static', filename='dashboard.js') }}"></script>
+
+</body>
+</html>

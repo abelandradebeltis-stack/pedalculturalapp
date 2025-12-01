@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<section class="section event-detail">
+  <div class="event-detail-header">
+    <a href="{{ url_for('index') }}#eventos" class="back-link">← Voltar</a>
+    <h1>{{ event['title'] }}</h1>
+    {% if event['event_date'] or event['location'] %}
+    <p class="event-meta">
+      {% if event['event_date'] %}<span>{{ event['event_date'] }}</span>{% endif %}
+      {% if event['location'] %}<span>• {{ event['location'] }}</span>{% endif %}
+    </p>
+    {% endif %}
+  </div>
+
+  {% if event['cover_image'] %}
+  <div class="event-detail-cover">
+    <img src="{{ url_for('static', filename='uploads/' + event['cover_image']) }}" alt="Capa do evento {{ event['title'] }}" />
+  </div>
+  {% endif %}
+
+  {% if event['description'] %}
+  <div class="event-detail-body">
+    <p>{{ event['description'] }}</p>
+  </div>
+  {% endif %}
+
+  {% if photos %}
+  <div class="event-gallery">
+    {% for p in photos %}
+    <figure class="gallery-item">
+      <img src="{{ url_for('static', filename='uploads/' + p['image_path']) }}" alt="Foto do evento {{ event['title'] }}" />
+    </figure>
+    {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

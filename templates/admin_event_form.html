@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block head_extra %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="section admin-section">
+  <div class="admin-header">
+    <h1>{% if event %}Editar Evento{% else %}Novo Evento{% endif %}</h1>
+    <a href="{{ url_for('admin_events') }}" class="back-link">← Voltar para a lista</a>
+  </div>
+
+  <form class="event-form" method="post" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="title">Título</label>
+      <input type="text" id="title" name="title" value="{{ event['title'] if event else '' }}" required />
+    </div>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="event_date">Data</label>
+        <input type="date" id="event_date" name="event_date" value="{{ event['event_date'] if event else '' }}" />
+      </div>
+      <div class="form-group">
+        <label for="location">Local</label>
+        <input type="text" id="location" name="location" value="{{ event['location'] if event else '' }}" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Descrição</label>
+      <textarea id="description" name="description" rows="5">{{ event['description'] if event else '' }}</textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="cover_image">Imagem de capa</label>
+      <input type="file" id="cover_image" name="cover_image" accept="image/*" />
+      {% if event and event['cover_image'] %}
+      <div class="admin-cover-preview">
+        <small>Imagem atual:</small>
+        <img src="{{ url_for('static', filename='uploads/' + event['cover_image']) }}" alt="Capa atual" />
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="gallery_images">Galeria de fotos (múltiplas)</label>
+      <input type="file" id="gallery_images" name="gallery_images" accept="image/*" multiple />
+      
+      {% if event and photos %}
+      <div class="admin-gallery-list">
+        {% for p in photos %}
+        <figure class="admin-gallery-item">
+          <img src="{{ url_for('static', filename='uploads/' + p['image_path']) }}" alt="Foto da galeria" />
+          <form method="post" action="{{ url_for('admin_delete_photo', photo_id=p.id) }}" onsubmit="return confirm('Excluir esta foto?');">
+            <button type="submit" class="btn-danger btn-small">Remover</button>
+          </form>
+        </figure>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn-primary">Salvar Evento</button>
+    </div>
+  </form>
+</section>
+{% endblock %}
